@@ -1,0 +1,22 @@
+group 'com.github.swapUniba'
+version '0.0.1'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+dependencies {
+    compile 'com.github.swapUniba:crowd-pulse-data-java:master-SNAPSHOT'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
