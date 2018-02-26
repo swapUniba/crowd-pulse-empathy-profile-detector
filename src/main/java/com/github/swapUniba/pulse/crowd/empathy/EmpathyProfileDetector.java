@@ -58,19 +58,24 @@ public class EmpathyProfileDetector extends IPlugin<Message, Message, EmpathyPro
             @Override
             public void onCompleted() {
                 Profile user = profileRepository.getByUsername(params.getUsername());
-                List<Empathy> userEmpathyList = user.getEmpathies();
-                if (userEmpathyList == null) {
-                    userEmpathyList = new ArrayList<>();
-                }
-                userEmpathyList.add(calculateEmpathy(allMessages));
-                logger.info("Empathy calculated");
+                if (user != null) {
+                    List<Empathy> userEmpathyList = user.getEmpathies();
+                    if (userEmpathyList == null) {
+                        userEmpathyList = new ArrayList<>();
+                    }
+                    userEmpathyList.add(calculateEmpathy(allMessages));
+                    logger.info("Empathy calculated");
 
-                // update the user profile
-                Query<Profile> query = profileRepository.createQuery();
-                query.field("username").equal(user.getUsername());
-                UpdateOperations<Profile> update = profileRepository.createUpdateOperations();
-                update.set("empathies", userEmpathyList);
-                profileRepository.updateFirst(query, update);
+                    // update the user profile
+                    Query<Profile> query = profileRepository.createQuery();
+                    query.field("username").equal(user.getUsername());
+                    UpdateOperations<Profile> update = profileRepository.createUpdateOperations();
+                    update.set("empathies", userEmpathyList);
+                    profileRepository.updateFirst(query, update);
+
+                } else {
+                    logger.info("No user profile found");
+                }
 
                 reportPluginAsCompleted();
                 subscriber.onCompleted();
