@@ -102,14 +102,44 @@ public class EmpathyProfileDetector extends IPlugin<Message, Message, EmpathyPro
      */
     private Empathy calculateEmpathy(List<Message> messages) {
 
-        // TODO replace code here with real-world one
         long timestamp = Calendar.getInstance().getTimeInMillis();
 
         Empathy userEmpathy = new Empathy();
         userEmpathy.setTimestamp(timestamp);
-        userEmpathy.setValue(new Random().nextDouble());
+
+        String query = "http://90.147.170.25:8080/PersonalityEmpathy/rest/UserService/userEmpathy";
+        ArrayList<String> list = new ArrayList<String>();
+
+        for (Message message : messages)
+        {
+            list.add(message.getText());
+        }
+        JSONObject json = new JSONObject();
+        json.put("messages", new JSONArray(list));
+
+        URL url = new URL(query);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(5000);
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+        conn.setRequestMethod("POST");
+
+        OutputStream os = conn.getOutputStream();
+        os.write(json.toString().getBytes("UTF-8"));
+        os.close();
+
+        // read the response
+        InputStream in = new BufferedInputStream(conn.getInputStream());
+        String result = org.apache.commons.io.IOUtils.toString(in, "UTF-8");
+
+        JSONObject jsonObject = new JSONObject(result);
+        String empathy = jsonObject.getString("empathy");
+
+        /***/
+        userEmpathy.setValue(Double.parseDouble(empathy));
         userEmpathy.setSource("empathy-detector");
-        userEmpathy.setConfidence(new Random().nextDouble());
+        userEmpathy.setConfidence(Double.parseDouble(empathy));
 
         return userEmpathy;
     }
