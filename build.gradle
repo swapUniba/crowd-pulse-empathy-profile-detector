@@ -16,7 +16,27 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
+configurations {
+    // configuration that holds jars to include in the jar
+    extraLibs
+}
+
+
+repositories {
+
+    mavenCentral()
+}
+
 dependencies {
     compile 'com.github.swapUniba:crowd-pulse-data-java:master-SNAPSHOT'
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    extraLibs group: 'org.apache.commons', name: 'commons-io', version: '1.3.2'
+    extraLibs group: 'org.json', name: 'json', version: '20180813'
+    configurations.compile.extendsFrom(configurations.extraLibs)
+}
+
+jar {
+    from {
+        configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
